@@ -587,7 +587,8 @@ class Media extends AbstractModel
                 $this->commentsDisabled = $value;
                 break;
             case 'comments':
-                $this->commentsCount = $arr[$prop]['count'];
+                if (isset($arr[$prop]['count']))
+                    $this->commentsCount = $arr[$prop]['count'];
                 break;
             case 'edge_liked_by':
             case 'edge_media_preview_like':
@@ -637,7 +638,8 @@ class Media extends AbstractModel
                 }
                 break;
             case 'caption':
-                $this->caption = $arr[$prop];
+                if (isset($arr[$prop]['text'])) $this->caption = $arr[$prop]['text'];
+                else $this->caption = $arr[$prop];
                 break;
             case 'accessibility_caption':
                 $this->altText = $value;
@@ -666,13 +668,18 @@ class Media extends AbstractModel
                 break;
             case 'location':
                 if (isset($arr[$prop])) {
-                    $this->locationId = $arr[$prop]['id'] ? $arr[$prop]['id'] : null;
-                    $this->locationName = $arr[$prop]['name'] ? $arr[$prop]['name'] : null;
-                    $this->locationSlug = $arr[$prop]['slug'] ? $arr[$prop]['slug'] : null;
+                    $this->locationId = isset($arr[$prop]['id']) ? $arr[$prop]['id'] : null;
+                    $this->locationId = isset($arr[$prop]['pk']) ? $arr[$prop]['pk'] : null;
+                    $this->locationName = isset($arr[$prop]['name']) ? $arr[$prop]['name'] : null;
+                    $this->locationSlug = isset($arr[$prop]['slug']) ? $arr[$prop]['slug'] : null;
+                    $this->locationSlug = isset($arr[$prop]['short_name']) ? $arr[$prop]['short_name'] : null;
                     $this->locationAddressJson = isset($arr[$prop]['address_json']) ? $arr[$prop]['address_json'] : null;
+                    $this->locationAddressJson = isset($arr[$prop]['address']) ? $arr[$prop]['address'] : null;
                 }
                 break;
             case 'owner':
+                //if (isset($arr[$prop]['id']))
+                //    $this->ownerId = $arr[$prop]['id'];
             case 'user':
                 $this->owner = Account::create($arr[$prop]);
                 break;
@@ -693,6 +700,7 @@ class Media extends AbstractModel
             case 'is_ad':
                 $this->isAd = $value;
                 break;
+            case 'taken_at':
             case 'taken_at_timestamp':
                 $this->createdTime = $value;
                 break;
@@ -777,6 +785,18 @@ class Media extends AbstractModel
                     }
                 }
                 break;
+            //new, except id, code, taken_at, user, caption
+            case 'media_type':
+                if ($value == 1) $this->type = static::TYPE_IMAGE;
+                elseif ($value == 2) $this->type = static::TYPE_VIDEO;
+                elseif ($value == 8) $this->type = static::TYPE_SIDECAR;
+                break;
+            case 'like_count':
+                $this->likesCount = $value;
+                break;
+            case 'comment_count':
+                $this->commentsCount = $value;
+                break;
         }
         if (!$this->ownerId && !is_null($this->owner)) {
             $this->ownerId = $this->getOwner()->getId();
@@ -793,24 +813,41 @@ class Media extends AbstractModel
     private static function setCarouselMedia($mediaArray, $carouselArray, $instance)
     {
         $carouselMedia = new CarouselMedia();
-        $carouselMedia->setType($carouselArray['type']);
+        if (isset($carouselArray['type'])) {
+            $carouselMedia->setType($carouselArray['type']);
 
-        if (isset($carouselArray['images'])) {
-            $carouselImages = self::getImageUrls($carouselArray['images']['standard_resolution']['url']);
-            $carouselMedia->setImageLowResolutionUrl($carouselImages['low']);
-            $carouselMedia->setImageThumbnailUrl($carouselImages['thumbnail']);
-            $carouselMedia->setImageStandardResolutionUrl($carouselImages['standard']);
-            $carouselMedia->setImageHighResolutionUrl($carouselImages['high']);
-        }
-
-        if ($carouselMedia->getType() === self::TYPE_VIDEO) {
-            if (isset($mediaArray['video_views'])) {
-                $carouselMedia->setVideoViews($carouselArray['video_views']);
+            if (isset($carouselArray['images'])) {
+                $carouselImages = self::getImageUrls($carouselArray['images']['standard_resolution']['url']);
+                $carouselMedia->setImageLowResolutionUrl($carouselImages['low']);
+                $carouselMedia->setImageThumbnailUrl($carouselImages['thumbnail']);
+                $carouselMedia->setImageStandardResolutionUrl($carouselImages['standard']);
+                $carouselMedia->setImageHighResolutionUrl($carouselImages['high']);
             }
-            if (isset($carouselArray['videos'])) {
-                $carouselMedia->setVideoLowResolutionUrl($carouselArray['videos']['low_resolution']['url']);
-                $carouselMedia->setVideoStandardResolutionUrl($carouselArray['videos']['standard_resolution']['url']);
-                $carouselMedia->setVideoLowBandwidthUrl($carouselArray['videos']['low_bandwidth']['url']);
+
+            if ($carouselMedia->getType() === self::TYPE_VIDEO) {
+                if (isset($mediaArray['video_views'])) {
+                    $carouselMedia->setVideoViews($carouselArray['video_views']);
+                }
+                if (isset($carouselArray['videos'])) {
+                    $carouselMedia->setVideoLowResolutionUrl($carouselArray['videos']['low_resolution']['url']);
+                    $carouselMedia->setVideoStandardResolutionUrl($carouselArray['videos']['standard_resolution']['url']);
+                    $carouselMedia->setVideoLowBandwidthUrl($carouselArray['videos']['low_bandwidth']['url']);
+                }
+            }
+        } elseif (isset($carouselArray['media_type'])) {
+            $media_type = $carouselArray['media_type'];
+            if ($media_type == 1) $carouselMedia->setType('image');
+            elseif ($media_type == 2) $carouselMedia->setType('video');
+            if (isset($carouselArray['image_versions2']) && isset($carouselArray['image_versions2']['candidates'])) {
+                $candidates = $carouselArray['image_versions2']['candidates'];
+                if (isset($candidates[7]) && isset($candidates[7]['url']))
+                    $carouselMedia->setImageHighResolutionUrl($candidates[7]['url']);
+                if (isset($candidates[9]) && isset($candidates[9]['url']))
+                    $carouselMedia->setImageStandardResolutionUrl($candidates[9]['url']);
+                if (isset($candidates[11]) && isset($candidates[1]['url']))
+                    $carouselMedia->setImageLowResolutionUrl($candidates[11]['url']);
+                if (isset($candidates[13]) && isset($candidates[13]['url']))
+                    $carouselMedia->setImageLowResolutionUrl($candidates[13]['url']);
             }
         }
         array_push($instance->carouselMedia, $carouselMedia);
