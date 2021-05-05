@@ -1,5 +1,5 @@
 <?php
-require __DIR__ . '/vendor/autoload.php';
+namespace InstagramScraper\TwoStepVerification;
 
 use InstagramScraper\Exception\InstagramAuthException;
 use InstagramScraper\TwoStepVerification\TwoStepVerificationInterface;
