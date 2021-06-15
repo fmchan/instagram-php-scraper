@@ -630,12 +630,32 @@ class Media extends AbstractModel
             case 'thumbnail_src':
                 $this->imageThumbnailUrl = $value;
                 break;
+            case 'image_versions2':
+                $candidates = $arr[$prop]['candidates'];
+                if (isset($candidates[7]) && isset($candidates[7]['url']))
+                    $this->imageHighResolutionUrl = $candidates[7]['url'];
+                if (isset($candidates[9]) && isset($candidates[9]['url']))
+                    $this->imageStandardResolutionUrl = $candidates[9]['url'];
+                if (isset($candidates[11]) && isset($candidates[11]['url']))
+                    $this->imageLowResolutionUrl = $candidates[11]['url'];
+                if (isset($candidates[13]) && isset($candidates[13]['url']))
+                    $this->imageThumbnailUrl = $candidates[13]['url'];
+                break;
             case 'carousel_media':
                 $this->type = self::TYPE_CAROUSEL;
                 $this->carouselMedia = [];
                 foreach ($arr["carousel_media"] as $carouselArray) {
                     self::setCarouselMedia($arr, $carouselArray, $this);
                 }
+                $candidates = $arr["carousel_media"][0]['image_versions2']['candidates'];
+                if (isset($candidates[7]) && isset($candidates[7]['url']))
+                    $this->imageHighResolutionUrl = $candidates[7]['url'];
+                if (isset($candidates[9]) && isset($candidates[9]['url']))
+                    $this->imageStandardResolutionUrl = $candidates[9]['url'];
+                if (isset($candidates[11]) && isset($candidates[11]['url']))
+                    $this->imageLowResolutionUrl = $candidates[11]['url'];
+                if (isset($candidates[13]) && isset($candidates[13]['url']))
+                    $this->imageThumbnailUrl = $candidates[13]['url'];
                 break;
             case 'caption':
                 if (isset($arr[$prop]['text'])) $this->caption = $arr[$prop]['text'];
@@ -844,10 +864,10 @@ class Media extends AbstractModel
                     $carouselMedia->setImageHighResolutionUrl($candidates[7]['url']);
                 if (isset($candidates[9]) && isset($candidates[9]['url']))
                     $carouselMedia->setImageStandardResolutionUrl($candidates[9]['url']);
-                if (isset($candidates[11]) && isset($candidates[1]['url']))
+                if (isset($candidates[11]) && isset($candidates[11]['url']))
                     $carouselMedia->setImageLowResolutionUrl($candidates[11]['url']);
                 if (isset($candidates[13]) && isset($candidates[13]['url']))
-                    $carouselMedia->setImageLowResolutionUrl($candidates[13]['url']);
+                    $carouselMedia->setImageThumbnailUrl($candidates[13]['url']);
             }
         }
         array_push($instance->carouselMedia, $carouselMedia);

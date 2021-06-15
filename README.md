@@ -51,18 +51,18 @@ $account = $instagram->getAccount('kevin');
 ### Using composer
 
 ```sh
-composer.phar require raiym/instagram-php-scraper
+composer.phar require fmchan/instagram-php-scraper
 ```
 or 
 ```sh
-composer require raiym/instagram-php-scraper
+composer require fmchan/instagram-php-scraper
 ```
 
 ### If you don't have composer
 You can download it [here](https://getcomposer.org/download/).
 
 ## Examples
-See examples [here](https://github.com/postaddictme/instagram-php-scraper/tree/master/examples).
+See examples [here](https://github.com/fmchan/instagram-php-scraper/tree/master/examples).
 
 ## Other
 Java library: https://github.com/postaddictme/instagram-java-scraper
