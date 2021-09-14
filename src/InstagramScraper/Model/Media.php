@@ -192,7 +192,9 @@ class Media extends AbstractModel
     /**
      * @var array
      */
+    protected $tappableObjects=[];
     protected $taggedUsers=[];
+    protected $isSaved=false;
     /**
      * @var array
      */
@@ -251,7 +253,14 @@ class Media extends AbstractModel
     {
         return $this->taggedUsers;
     }
-
+    public function getTappableObjects(): array
+    {
+        return $this->tappableObjects;
+    }
+    public function isSaved()
+    {
+        return $this->isSaved;
+    }
     /**
      * @return array
      */
@@ -595,6 +604,11 @@ class Media extends AbstractModel
             case 'likes':
                 $this->likesCount = $arr[$prop]['count'];
                 break;
+            case 'tappable_objects':
+                foreach ($value as $tapObj) {
+                    $this->tappableObjects[] = $tapObj ?? [];
+                }
+                break;
             case 'display_resources':
                 foreach ($value as $media) {
                     $mediasUrl[] = $media['src'];
@@ -716,6 +730,9 @@ class Media extends AbstractModel
                 break;
             case 'caption_is_edited':
                 $this->isCaptionEdited = $value;
+                break;
+            case 'viewer_has_saved':
+                $this->isSaved = $value;
                 break;
             case 'is_ad':
                 $this->isAd = $value;

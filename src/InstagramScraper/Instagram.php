@@ -720,6 +720,8 @@ class Instagram
         if (!isset($mediaArray['graphql']['shortcode_media'])) {
             throw new InstagramException('Media with this code does not exist');
         }
+        //$substrUrl = substr($mediaUrl, -11);
+        //file_put_contents("test-mediaArray-{$substrUrl}.txt",$response->raw_body);
         return Media::create($mediaArray['graphql']['shortcode_media']);
     }
 
@@ -1446,6 +1448,7 @@ class Instagram
      */
     public function getPaginateFollowers($accountId, $count = 20, $pageSize = 20, $delayed = true, $nextPage = '')
     {
+        echo "Count:{$count}, PageSize:{$pageSize}\n";
         if ($delayed) {
             set_time_limit($this->pagingTimeLimitSec);
         }
@@ -1459,6 +1462,7 @@ class Instagram
             throw new InstagramException('Count must be greater than or equal to page size.');
         }
 
+        $indexTemp = 0;
         while (true) {
             $response = Request::get(Endpoints::getFollowersJsonLink($accountId, $pageSize, $endCursor),
                 $this->generateHeaders($this->userSession));
@@ -1488,6 +1492,9 @@ class Instagram
             } else {
                 $hasNextPage = false;
             }
+            //print_r($pageInfo);
+            echo "{$indexTemp} edge count:".count($edgesArray)."\n";
+            $indexTemp++;
 
             foreach ($edgesArray as $edge) {
                 $accounts[] = $edge['node'];
@@ -1512,6 +1519,7 @@ class Instagram
             'nextPage' => $lastPagingInfo['end_cursor'],
             'accounts' => $accounts
         ];
+        print_r($toReturn);
         return $toReturn;
     }
 
@@ -1731,6 +1739,7 @@ class Instagram
             }
 
             $jsonResponse = $this->decodeRawBodyToJson($response->raw_body);
+            //file_put_contents("s-t1.txt",$response->raw_body);
 
             if (empty($jsonResponse['data']['user']['feed_reels_tray']['edge_reels_tray_to_reel']['edges'])) {
                 return [];
@@ -1758,6 +1767,7 @@ class Instagram
       }
 
       $jsonResponse = $this->decodeRawBodyToJson($response->raw_body);
+      //file_put_contents("s-t2.txt",$response->raw_body);
 
       if (empty($jsonResponse['data']['reels_media'])) {
           return [];
