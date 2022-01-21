@@ -715,10 +715,16 @@ class Instagram
         if (static::HTTP_OK !== $response->code) {
             throw new InstagramException('Response code is ' . $response->code . '. Body: ' . static::getErrorBody($response->body) . ' Something went wrong. Please report issue.', $response->code);
         }
-
+        //print_r($response->raw_body);
         $mediaArray = $this->decodeRawBodyToJson($response->raw_body);
-        if (!isset($mediaArray['graphql']['shortcode_media'])) {
-            throw new InstagramException('Media with this code does not exist');
+        if (!isset($mediaArray['graphql'])) {
+            echo "using new api\n";
+            if (isset($mediaArray['items'])) {
+                return Media::create($mediaArray['items'][0]);
+            } else {
+                throw new InstagramException('Media with this code does not exist');
+            }
+        } else if (!isset($mediaArray['graphql']['shortcode_media'])) {            throw new InstagramException('Media with this code does not exist');
         }
         //$substrUrl = substr($mediaUrl, -11);
         //file_put_contents("test-mediaArray-{$substrUrl}.txt",$response->raw_body);
@@ -913,6 +919,10 @@ class Instagram
             $this->parseCookies($response->headers);
             $jsonResponse = $this->decodeRawBodyToJson($response->raw_body);
 
+            if (!isset($jsonResponse['data']['shortcode_media']) || $jsonResponse['data']['shortcode_media'] == null) {
+                echo "this is probabily a private acc with shortcode hidden.\n";
+                return [];
+            }
             if (
                 !isset($jsonResponse['data']['shortcode_media']['edge_media_to_comment']['edges'])
                 || !isset($jsonResponse['data']['shortcode_media']['edge_media_to_comment']['count'])
