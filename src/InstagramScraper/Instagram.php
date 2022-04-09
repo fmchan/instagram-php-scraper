@@ -518,7 +518,9 @@ class Instagram
         $response = Request::get(Endpoints::getAccountPageLink($username), $this->generateHeaders($this->userSession));
 
         if (static::HTTP_NOT_FOUND === $response->code) {
-            throw new InstagramNotFoundException('Account with given username does not exist.');
+            //throw new InstagramNotFoundException('Account with given username does not exist.');
+            echo $username." - Account with given username does not exist.\n";
+            return null;
         }
         if (static::HTTP_OK !== $response->code) {
             throw new InstagramException('Response code is ' . $response->code . '. Body: ' . static::getErrorBody($response->body) . ' Something went wrong. Please report issue.', $response->code);
@@ -724,7 +726,8 @@ class Instagram
             } else {
                 throw new InstagramException('Media with this code does not exist');
             }
-        } else if (!isset($mediaArray['graphql']['shortcode_media'])) {            throw new InstagramException('Media with this code does not exist');
+        } else if (!isset($mediaArray['graphql']['shortcode_media'])) {
+            throw new InstagramException('Media with this code does not exist');
         }
         //$substrUrl = substr($mediaUrl, -11);
         //file_put_contents("test-mediaArray-{$substrUrl}.txt",$response->raw_body);
