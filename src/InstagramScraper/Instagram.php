@@ -532,8 +532,10 @@ class Instagram
             throw new InstagramAgeRestrictedException('Account with given username is age-restricted.');
         }
 
-        if (!isset($userArray['entry_data']['ProfilePage'][0]['graphql']['user'])) {
-            throw new InstagramException('Response code is ' . $response->code . '. Body: ' . static::getErrorBody($response->body) . ' Something went wrong. Please report issue.', $response->code);
+        if ($userArray == null || !isset($userArray['entry_data']) || !isset($userArray['entry_data']['ProfilePage']) || !isset($userArray['entry_data']['ProfilePage'][0]['graphql']) || !isset($userArray['entry_data']['ProfilePage'][0]['graphql']['user'])) {
+            echo $username." - invalid json return.\n".static::getErrorBody($response->body)."\n";
+            return null;
+            //throw new InstagramException('Response code is ' . $response->code . '. Body: ' . static::getErrorBody($response->body) . ' Something went wrong. Please report issue.', $response->code);
         }
         return Account::create($userArray['entry_data']['ProfilePage'][0]['graphql']['user']);
     }
@@ -2157,6 +2159,7 @@ class Instagram
             return ['code'=>$response->code, 'data'=>$response->body];
         }
 
+        $jsonResponse = array();
         if ($response->raw_body != null) {
             $jsonResponse = $this->decodeRawBodyToJson($response->raw_body);
             return ['code'=>$response->code, 'data'=>$jsonResponse];

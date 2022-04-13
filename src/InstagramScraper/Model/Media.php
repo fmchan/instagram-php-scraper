@@ -650,27 +650,32 @@ class Media extends AbstractModel
                 break;
             case 'image_versions2':
                 $candidates = $arr[$prop]['candidates'];
-                print_r($candidates);
+                //echo "w:".implode(",", array_column($candidates, 'width'))."\n";
+                //print_r($candidates);
                 foreach($candidates as $key => $image) {
                     if (isset($image['width']) && isset($image['url'])) {
-                        switch (intval($image['width'])) {
-                            case 1080:
-                                $this->imageHighResolutionUrl = $image['url'];
+                        switch ($w = intval($image['width'])) {
+                            case $w >= 1080:
+                                if (empty($this->imageHighResolutionUrl))
+                                    $this->imageHighResolutionUrl = $image['url'];
                                 break;
-                            case 750:
-                                $this->imageStandardResolutionUrl = $image['url'];
+                            case $w >= 750:
+                                if (empty($this->imageStandardResolutionUrl))
+                                    $this->imageStandardResolutionUrl = $image['url'];
                                 break;
-                            case 320:
-                                $this->imageLowResolutionUrl = $image['url'];
+                            case $w >= 320:
+                                if (empty($this->imageLowResolutionUrl))
+                                    $this->imageLowResolutionUrl = $image['url'];
                                 break;
-                            case 240:
-                                $this->imageThumbnailUrl = $image['url'];
+                            default:
+                                if (empty($this->imageThumbnailUrl))
+                                    $this->imageThumbnailUrl = $image['url'];
                                 break;
                         }
                     }
                 }
-                echo "pain getImageLowResolutionUrl\n";
-                print_r($this->getImageLowResolutionUrl());
+                //echo "pain getImageLowResolutionUrl\n";
+                //print_r($this->getImageLowResolutionUrl());
                 break;
             case 'carousel_media':
                 $this->type = self::TYPE_CAROUSEL;
@@ -679,27 +684,32 @@ class Media extends AbstractModel
                     self::setCarouselMedia($arr, $carouselArray, $this);
                 }
                 $candidates = $arr["carousel_media"][0]['image_versions2']['candidates'];
-                print_r($candidates);
+                //echo "w:".implode(",", array_column($candidates, 'width'))."\n";
+                //print_r($candidates);
                 foreach($candidates as $key => $image) {
                     if (isset($image['width']) && isset($image['url'])) {
-                        switch (intval($image['width'])) {
-                            case 1080:
-                                $this->imageHighResolutionUrl = $image['url'];
+                        switch ($w = intval($image['width'])) {
+                            case $w >= 1080:
+                                if (empty($this->imageHighResolutionUrl))
+                                    $this->imageHighResolutionUrl = $image['url'];
                                 break;
-                            case 750:
-                                $this->imageStandardResolutionUrl = $image['url'];
+                            case $w >= 750:
+                                if (empty($this->imageStandardResolutionUrl))
+                                    $this->imageStandardResolutionUrl = $image['url'];
                                 break;
-                            case 320:
-                                $this->imageLowResolutionUrl = $image['url'];
+                            case $w >= 320:
+                                if (empty($this->imageLowResolutionUrl))
+                                    $this->imageLowResolutionUrl = $image['url'];
                                 break;
-                            case 240:
-                                $this->imageThumbnailUrl = $image['url'];
+                            default:
+                                if (empty($this->imageThumbnailUrl))
+                                    $this->imageThumbnailUrl = $image['url'];
                                 break;
                         }
                     }
                 }
-                echo "carousel_media getImageLowResolutionUrl\n";
-                print_r($this->getImageLowResolutionUrl());
+                //echo "carousel_media getImageLowResolutionUrl\n";
+                //print_r($this->getImageLowResolutionUrl());
                 break;
             case 'caption':
                 if (isset($arr[$prop]['text'])) $this->caption = $arr[$prop]['text'];
@@ -909,18 +919,22 @@ class Media extends AbstractModel
                 $candidates = $carouselArray['image_versions2']['candidates'];
                 foreach($candidates as $key => $image) {
                     if (isset($image['width']) && isset($image['url'])) {
-                        switch (intval($image['width'])) {
-                            case 1080:
-                                $carouselMedia->setImageHighResolutionUrl($image['url']);
+                        switch ($w = intval($image['width'])) {
+                            case $w >= 1080:
+                                if (empty($carouselMedia->getImageHighResolutionUrl()))
+                                    $carouselMedia->setImageHighResolutionUrl($image['url']);
                                 break;
-                            case 750:
-                                $carouselMedia->setImageStandardResolutionUrl($image['url']);
+                            case $w >= 750:
+                                if (empty($carouselMedia->getImageStandardResolutionUrl()))
+                                    $carouselMedia->setImageStandardResolutionUrl($image['url']);
                                 break;
-                            case 320:
-                                $carouselMedia->setImageLowResolutionUrl($image['url']);
+                            case $w >= 320:
+                                if (empty($carouselMedia->getImageLowResolutionUrl()))
+                                    $carouselMedia->setImageLowResolutionUrl($image['url']);
                                 break;
-                            case 240:
-                                $carouselMedia->setImageThumbnailUrl($image['url']);
+                            default:
+                                if (empty($carouselMedia->getImageThumbnailUrl()))
+                                    $carouselMedia->setImageThumbnailUrl($image['url']);
                                 break;
                         }
                     }
